@@ -22,6 +22,10 @@ def ida_star_min_out(cost_matrix, start, goal):
         return min(cost_matrix[node][j] for j in remaining_cities)
 
     def dfs(current, g, bound, path, visited_cities):
+        nonlocal expanded_nodes, generated_nodes
+
+        expanded_nodes += 1
+
         f = g + heuristic_min_out(current, visited_cities)
         if f > bound:
             return f, path
@@ -34,6 +38,7 @@ def ida_star_min_out(cost_matrix, start, goal):
         for neighbor in range(len(cost_matrix[current])):
             if cost_matrix[current][neighbor] > 0 and neighbor not in visited_cities:
                 new_visited_cities = visited_cities + [neighbor]
+                generated_nodes += 1
                 result, new_path = dfs(neighbor, g + cost_matrix[current][neighbor], bound, path + [neighbor], new_visited_cities)
                 if result == "FOUND":
                     return "FOUND", new_path
@@ -46,13 +51,15 @@ def ida_star_min_out(cost_matrix, start, goal):
     bound = heuristic_min_out(start, [])
     path = [start]
     start_time = time.time()
+    expanded_nodes = 0
+    generated_nodes = 1  # Start node is generated
     while True:
         result, path = dfs(start, 0, bound, path, [])
         end_time = time.time()
         if result == "FOUND":
-            return path, bound, end_time - start_time
+            return path, bound, end_time - start_time, expanded_nodes, generated_nodes
         if result == float('inf'):
-            return "No path found", None, end_time - start_time
+            return "No path found", None, end_time - start_time, expanded_nodes, generated_nodes
         bound = result
 
 # Example usage:
@@ -63,6 +70,7 @@ total_run_time = 0
 total_shortest_path_cost = 0
 total_expanded_nodes = 0
 total_generated_nodes = 0
+total_problems_solved = 0
 
 for num_cities in num_cities_values:
     for seed in seeds:
@@ -76,21 +84,25 @@ for num_cities in num_cities_values:
         goal_node = num_cities - 1  # Assuming the goal node is the last node
 
         print("\nRunning IDA* with min-out heuristic...")
-        path, cost, run_time = ida_star_min_out(cost_matrix, start_node, goal_node)
+        path, cost, run_time, expanded_nodes, generated_nodes = ida_star_min_out(cost_matrix, start_node, goal_node)
 
         print("\nOptimal Path:")
         for node in path:
             print(f"({node // num_cities}, {node % num_cities}) - Cost: {cost_matrix[node // num_cities][node % num_cities]}")
         print(f"Shortest Path Cost: {cost}")
-        print(f"Run Time: {run_time} seconds\n")
+        print(f"Run Time: {run_time} seconds")
+        print(f"Expanded Nodes: {expanded_nodes}")
+        print(f"Generated Nodes: {generated_nodes}\n")
 
         total_run_time += run_time
         total_shortest_path_cost += cost
-        # Note: You may need to adjust these values based on your definition of expanded and generated nodes.
-        total_expanded_nodes += 1
-        total_generated_nodes += 1
+        if cost != float('inf'):
+            total_problems_solved += 1
+        total_expanded_nodes += expanded_nodes
+        total_generated_nodes += generated_nodes
 
-print(f"\nAverage Run Time: {total_run_time / (len(seeds) * len(num_cities_values))} seconds")
-print(f"Average Shortest Path Cost: {total_shortest_path_cost / (len(seeds) * len(num_cities_values))}")
+print(f"\nTotal Problems Solved: {total_problems_solved}")
+print(f"Average Run Time: {total_run_time / (len(seeds) * len(num_cities_values))} seconds")
+print(f"Average Shortest Path Cost: {total_shortest_path_cost / total_problems_solved if total_problems_solved > 0 else 0}")
 print(f"Average Expanded Nodes: {total_expanded_nodes / (len(seeds) * len(num_cities_values))}")
 print(f"Average Generated Nodes: {total_generated_nodes / (len(seeds) * len(num_cities_values))}")

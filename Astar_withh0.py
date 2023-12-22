@@ -88,6 +88,8 @@ num_cities_values = [5, 10, 11, 12]
 total_solve_time = 0
 total_expanded_nodes = 0
 total_generated_nodes = 0
+total_problems_solved = 0
+total_shortest_path_cost = 0
 
 for num_cities in num_cities_values:
     for seed in seeds:
@@ -103,6 +105,10 @@ for num_cities in num_cities_values:
         start_time = time.time()
         solve_time, total_cost, path, expanded_nodes, generated_nodes = astar(cost_matrix, start_node, goal_node)
         end_time = time.time()
+
+        if total_cost != float('inf'):
+            total_problems_solved += 1
+            total_shortest_path_cost += total_cost
 
         total_solve_time += solve_time
         total_expanded_nodes += expanded_nodes
@@ -123,3 +129,5 @@ for num_cities in num_cities_values:
 print(f"\nAverage Solve Time: {total_solve_time / (len(seeds) * len(num_cities_values))} seconds")
 print(f"Average Expanded Nodes: {total_expanded_nodes / (len(seeds) * len(num_cities_values))}")
 print(f"Average Generated Nodes: {total_generated_nodes / (len(seeds) * len(num_cities_values))}")
+print(f"Problems Solved: {total_problems_solved}")
+print(f"Average Shortest Path Cost: {total_shortest_path_cost / total_problems_solved}")
