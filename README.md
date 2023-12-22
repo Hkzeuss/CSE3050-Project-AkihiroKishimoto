@@ -6,6 +6,7 @@ In this project, you will work in a team of 4-5 members to implement several sea
 In TSP, given N cities, starting with the first city, a salesperson must visit each city exactly once and return to the first city. The salesperson must travel with the smallest sum of edge costs on the route taken by them. [Wikipedia](https://en.wikipedia.org/wiki/Travelling_salesman_problem)
 
 ## Project Description
+Pham Quang Manh (21110091)
 Implement the following algorithms and compare their performance:
 1. IDA* with heuristic function h(n)=0
 2. IDA* with the min-out heuristic function
