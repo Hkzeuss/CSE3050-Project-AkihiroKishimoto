@@ -58,7 +58,11 @@ num_cities_values = [5, 10, 11, 12]
 
 for num_cities in num_cities_values:
     total_run_time = 0.0
+    total_shortest_path_cost = 0
+    total_expanded_nodes = 0
+    total_generated_nodes = 0
     num_experiments = 5  # Adjust the number of experiments as needed
+
     for seed in seeds:
         cost_matrix = generate_cost_matrix(num_cities, seed)
 
@@ -71,8 +75,22 @@ for num_cities in num_cities_values:
 
         print("\nRunning IDA*...")
         for _ in range(num_experiments):
-            _, _, run_time = ida_star(cost_matrix, start_node, goal_node)
+            path, _, run_time = ida_star(cost_matrix, start_node, goal_node)
+            
+            # Calculate the shortest path cost
+            shortest_path_cost = sum(cost_matrix[path[i]][path[i+1]] for i in range(len(path)-1))
+
             total_run_time += run_time
+            total_shortest_path_cost += shortest_path_cost
+            total_expanded_nodes += len(path) - 1
+            total_generated_nodes += len(path)
 
     average_run_time = total_run_time / (num_experiments * len(seeds))
-    print(f"\nAverage Run Time for Num Cities {num_cities}: {average_run_time} seconds\n")
+    average_shortest_path_cost = total_shortest_path_cost / (num_experiments * len(seeds))
+    average_expanded_nodes = total_expanded_nodes / (num_experiments * len(seeds))
+    average_generated_nodes = total_generated_nodes / (num_experiments * len(seeds))
+
+    print(f"\nAverage Run Time for Num Cities {num_cities}: {average_run_time} seconds")
+    print(f"Average Shortest Path Cost for Num Cities {num_cities}: {average_shortest_path_cost}")
+    print(f"Average Expanded Nodes for Num Cities {num_cities}: {average_expanded_nodes}")
+    print(f"Average Generated Nodes for Num Cities {num_cities}: {average_generated_nodes}")

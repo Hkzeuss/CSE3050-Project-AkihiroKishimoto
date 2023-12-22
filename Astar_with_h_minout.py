@@ -33,10 +33,16 @@ def a_star_min_out(cost_matrix, start, goal):
     # Dictionary to store the parent node for each node
     parents = {start: None}
 
+    expanded_nodes = 0
+    generated_nodes = 1  # Start node is generated
+
     start_time = time.time()
 
     while priority_queue:
         current_cost, current_node = heapq.heappop(priority_queue)
+
+        # Increment the count of expanded nodes
+        expanded_nodes += 1
 
         # Check if we reached the goal
         if current_node == goal:
@@ -50,7 +56,7 @@ def a_star_min_out(cost_matrix, start, goal):
                 path.insert(0, current)
                 current = parents[current]
 
-            return solve_time, best_known_cost[goal], path
+            return solve_time, best_known_cost[goal], path, expanded_nodes, generated_nodes
 
         # Explore neighbors
         neighbors = [
@@ -65,20 +71,25 @@ def a_star_min_out(cost_matrix, start, goal):
             if 0 <= row < num_rows and 0 <= col < num_cols:
                 total_cost = best_known_cost[current_node] + cost_matrix[row][col]
 
-                # Update best-known cost if a shorter path is found
+                # Increment the count of generated nodes
+                generated_nodes += 1
+
+                # Update best known cost if a shorter path is found
                 if neighbor not in best_known_cost or total_cost < best_known_cost[neighbor]:
                     best_known_cost[neighbor] = total_cost
                     priority = total_cost + heuristic_min_out(neighbor, [current_node[0]])
                     heapq.heappush(priority_queue, (priority, neighbor))
                     parents[neighbor] = current_node
 
-    return float('inf'), float('inf'), []  # Return infinity if no path is found
+    return float('inf'), float('inf'), [], 0, 0  # Return infinity if no path is found
 
 # Example usage:
 seeds = [1, 2, 3, 4, 5]
 num_cities_values = [5, 10, 11, 12]
 
 total_solve_time = 0
+total_expanded_nodes = 0
+total_generated_nodes = 0
 
 for num_cities in num_cities_values:
     for seed in seeds:
@@ -92,10 +103,12 @@ for num_cities in num_cities_values:
         goal_node = (num_cities - 1, num_cities - 1)
 
         start_time = time.time()
-        solve_time, total_cost, path = a_star_min_out(cost_matrix, start_node, goal_node)
+        solve_time, total_cost, path, expanded_nodes, generated_nodes = a_star_min_out(cost_matrix, start_node, goal_node)
         end_time = time.time()
 
         total_solve_time += solve_time
+        total_expanded_nodes += expanded_nodes
+        total_generated_nodes += generated_nodes
 
         print("\nOptimal Path:")
         if path:
@@ -106,5 +119,9 @@ for num_cities in num_cities_values:
 
         print(f"\nTotal Cost: {'Infinity' if math.isinf(total_cost) else total_cost}")
         print(f"Solve Time: {solve_time} seconds")
+        print(f"Expanded Nodes: {expanded_nodes}")
+        print(f"Generated Nodes: {generated_nodes}")
 
-print(f"\nAverage Solve Time: {total_solve_time / (len(seeds) * len(num_cities_values))} seconds\n")
+print(f"\nAverage Solve Time: {total_solve_time / (len(seeds) * len(num_cities_values))} seconds")
+print(f"Average Expanded Nodes: {total_expanded_nodes / (len(seeds) * len(num_cities_values))}")
+print(f"Average Generated Nodes: {total_generated_nodes / (len(seeds) * len(num_cities_values))}")

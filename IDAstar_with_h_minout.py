@@ -15,15 +15,14 @@ def generate_cost_matrix(num_cities, seed):
     return cost_matrix
 
 def ida_star_min_out(cost_matrix, start, goal):
-    def heuristic(node, visited_cities):
-        # Calculate the min-out heuristic
+    def heuristic_min_out(node, visited_cities):
         remaining_cities = [j for j in range(len(cost_matrix)) if j not in visited_cities]
         if not remaining_cities:
             return 0
         return min(cost_matrix[node][j] for j in remaining_cities)
 
     def dfs(current, g, bound, path, visited_cities):
-        f = g + heuristic(current, visited_cities)
+        f = g + heuristic_min_out(current, visited_cities)
         if f > bound:
             return f, path
         if current == goal:
@@ -44,7 +43,7 @@ def ida_star_min_out(cost_matrix, start, goal):
 
         return min_cost, next_path
 
-    bound = heuristic(start, [])
+    bound = heuristic_min_out(start, [])
     path = [start]
     start_time = time.time()
     while True:
@@ -59,6 +58,11 @@ def ida_star_min_out(cost_matrix, start, goal):
 # Example usage:
 seeds = [1, 2, 3, 4, 5]
 num_cities_values = [5, 10, 11, 12]
+
+total_run_time = 0
+total_shortest_path_cost = 0
+total_expanded_nodes = 0
+total_generated_nodes = 0
 
 for num_cities in num_cities_values:
     for seed in seeds:
@@ -79,3 +83,14 @@ for num_cities in num_cities_values:
             print(f"({node // num_cities}, {node % num_cities}) - Cost: {cost_matrix[node // num_cities][node % num_cities]}")
         print(f"Shortest Path Cost: {cost}")
         print(f"Run Time: {run_time} seconds\n")
+
+        total_run_time += run_time
+        total_shortest_path_cost += cost
+        # Note: You may need to adjust these values based on your definition of expanded and generated nodes.
+        total_expanded_nodes += 1
+        total_generated_nodes += 1
+
+print(f"\nAverage Run Time: {total_run_time / (len(seeds) * len(num_cities_values))} seconds")
+print(f"Average Shortest Path Cost: {total_shortest_path_cost / (len(seeds) * len(num_cities_values))}")
+print(f"Average Expanded Nodes: {total_expanded_nodes / (len(seeds) * len(num_cities_values))}")
+print(f"Average Generated Nodes: {total_generated_nodes / (len(seeds) * len(num_cities_values))}")
